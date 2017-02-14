@@ -64,11 +64,11 @@ for dt_counter, dt in enumerate(date_list):
             currency_code, currency_name, units_per_inr, inr_per_unit = values
             inr_per_unit_cur.append(inr_per_unit)
             currency_codes.append(currency_code)
-            #currency_names.append(currency_name)
+            currency_names.append(currency_name.encode('utf-8').strip())
             
         if dt_counter == 0:
             d.append(('Currency Codes', currency_codes))
-            #d.append(('Currency Names', currency_names))
+            d.append(('Currency Names', currency_names))
         else:
             if len(currency_codes) != len(d[0][1]):
                 cur_na = set(d[0][1]) - set(currency_codes)
