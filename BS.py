@@ -5,7 +5,7 @@
 #
 # Author:      Jayakrishnan Vijayaraghavan
 #
-# Created:     09/02/2017
+# Created:     02/12/2017
 # Copyright:   (c) jvijayaraghavan 2017
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ import datetime
 # -----------------------------------------------------
 
 #The number of days for which the data is needed
-num_days = 365
+num_days = 10
 # Location to save the csv. Prepend r'' before the location
 location = r'C:\Personal\Learn\BS.csv'
 from_currency = "INR"
@@ -42,7 +42,7 @@ date_list = [(base - datetime.timedelta(days= x)).strftime(format) for x in rang
 
 d = []
 
-for dt_counter, dt in enumerable(date_list):
+for dt_counter, dt in enumerate(date_list):
     try:
         #For each date, form the url
         url = url_format.format(from_currency, dt)
@@ -52,7 +52,7 @@ for dt_counter, dt in enumerable(date_list):
             print('No data available for {0}'.format(dt))
             continue
         print('Processing data for {0}'.format(dt))
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, "html.parser")
         
         tbl = soup.find_all('table')[0]
         currency_codes = []
