@@ -52,30 +52,36 @@ for dt_counter, dt in enumerate(date_list):
             print('No data available for {0}'.format(dt))
             continue
         print('Processing data for {0}'.format(dt))
+        #Create a Soup document by parsing it
         soup = BeautifulSoup(html, "html.parser")
         
+        # Get the first table in the page
         tbl = soup.find_all('table')[0]
         currency_codes = []
         currency_names = []
         inr_per_unit_cur = []
+        
+        #Iterate through the rows in the table except the header row
         for th in tbl.findAll('tr')[1:]:
-
+            
             values = [item.getText().strip() for item in th.findAll('td')]
             currency_code, currency_name, units_per_inr, inr_per_unit = values
             inr_per_unit_cur.append(inr_per_unit)
             currency_codes.append(currency_code)
             currency_names.append(currency_name.encode('utf-8').strip())
-            
+        #Add Header row
         if dt_counter == 0:
             d.append(('Currency Codes', currency_codes))
             d.append(('Currency Names', currency_names))
         else:
+            #If there's a difference in the currencies listed from the first day, insert null values
             if len(currency_codes) != len(d[0][1]):
                 cur_na = set(d[0][1]) - set(currency_codes)
                 for cur in cur_na:
                     idx = d[0][1].index(cur)
                     inr_per_unit_cur.insert(idx, None)
                     print("The {1} currency value is not available for {0}".format(dt, cur))
+        # Add the currency values for the date as a list
         d.append((dt, inr_per_unit_cur))
     except Exception as e:
         print("There was an error in processing info on {0} due to {1}".format(dt, e[0]))
