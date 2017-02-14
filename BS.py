@@ -1,11 +1,12 @@
 #-------------------------------------------------------------------------------
 # Name:        Currency Data Downloader
-# Purpose:
+# Purpose:     Downloads Currency Conversion Data from www.xe.com for any given
+#              currency for any given day
 #
-# Author:
+# Author:      Jayakrishnan Vijayaraghavan
 #
 # Created:     09/02/2017
-# Copyright:
+# Copyright:   (c) jvijayaraghavan 2017
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
@@ -13,6 +14,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import urllib
 import datetime
+
 # -----------------------------------------------------
 # Attribute names
 # -----------------------------------------------------
@@ -22,6 +24,7 @@ num_days = 365
 # Location to save the csv. Prepend r'' before the location
 location = r'C:\Personal\Learn\BS.csv'
 from_currency = "INR"
+
 # -----------------------------------------------------
 # Other Constants
 # -----------------------------------------------------
@@ -37,33 +40,32 @@ base = today - datetime.timedelta(days = 1)
 # List of dates from yesterday until the number of days as a string in the given format
 date_list = [(base - datetime.timedelta(days= x)).strftime(format) for x in range(0, num_days)]
 
-dt_counter = 0
 d = []
 
-for dt in date_list:
+for dt_counter, dt in enumerable(date_list):
     try:
+        #For each date, form the url
         url = url_format.format(from_currency, dt)
+        #OPen the URL and read content into Beautiful soup
         html = urllib.urlopen(url).read()
         if html is None:
-            print('No data available on {0}'.format(dt))
+            print('No data available for {0}'.format(dt))
             continue
         print('Processing data for {0}'.format(dt))
         soup = BeautifulSoup(html)
-
+        
         tbl = soup.find_all('table')[0]
         currency_codes = []
         currency_names = []
         inr_per_unit_cur = []
-        for th in soup.findAll('tr')[1:]:
+        for th in tbl.findAll('tr')[1:]:
 
             values = [item.getText().strip() for item in th.findAll('td')]
-            if len(values) == 0:
-                break
             currency_code, currency_name, units_per_inr, inr_per_unit = values
-
             inr_per_unit_cur.append(inr_per_unit)
             currency_codes.append(currency_code)
             #currency_names.append(currency_name)
+            
         if dt_counter == 0:
             d.append(('Currency Codes', currency_codes))
             #d.append(('Currency Names', currency_names))
@@ -75,7 +77,6 @@ for dt in date_list:
                     inr_per_unit_cur.insert(idx, None)
                     print("The {1} currency value is not available for {0}".format(dt, cur))
         d.append((dt, inr_per_unit_cur))
-        dt_counter += 1
     except Exception as e:
         print("There was an error in processing info on {0} due to {1}".format(dt, e[0]))
         continue
